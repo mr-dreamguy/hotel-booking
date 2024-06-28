@@ -347,6 +347,18 @@ const sampleListings = [
     location: "Costa Rica",
     country: "Costa Rica",
   },
+  {
+    title: "Suryalanka Beach",
+    description:
+      "Escape to a secluded beach house on the Indian Ocean of Chirala. Surf, relax, and unwind.",
+    image: {
+      filename: "listingimage",
+      url: "https://www.holidify.com/images/cmsuploads/compressed/Beautiful_Morning_at_Bay_of_Bengal_20190116151743.jpg",
+    },
+    price: 1800,
+    location: "Guntur",
+    country: "India",
+  },
 ];
 
 module.exports = { data: sampleListings };
