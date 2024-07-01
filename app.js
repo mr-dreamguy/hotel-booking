@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
+const Review = require("./models/review.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const listingSchema = require("./models/listingJoi.js");
+const reviewSchema = require("./models/reviewJoi.js");
 
 const app = express();
 const port = 8080;
@@ -26,6 +28,26 @@ async function connect() {
 connect()
   .then((res) => console.log("connection successful"))
   .catch((err) => console.log(err));
+
+const validateListing = (req, res, next) => {
+  let { error } = listingSchema.validate(req.body);
+  if (error) {
+    let msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, msg);
+  } else {
+    next();
+  }
+};
+
+const validateReview = (req, res, next) => {
+  let { error } = reviewSchema.validate(req.body);
+  if (error) {
+    let msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(400, msg);
+  } else {
+    next();
+  }
+};
 
 // Root
 app.get("/", (req, res) => {
@@ -49,11 +71,8 @@ app.get("/listings/new", (req, res) => {
 // Create Route
 app.post(
   "/listings",
+  validateListing,
   wrapAsync(async (req, res) => {
-    let result = listingSchema.validate(req.body);
-    if (result.error) {
-      throw new ExpressError(400, result.error);
-    }
     let ls = new Listing(req.body);
     await ls.save();
     res.redirect("/listings");
@@ -65,7 +84,7 @@ app.get(
   "/listings/:id",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let listing = await Listing.findById(id);
+    let listing = await Listing.findById(id).populate("reviews");
     res.render("./listings/show.ejs", { listing });
   })
 );
@@ -83,11 +102,8 @@ app.get(
 // Update Route
 app.put(
   "/listings/:id",
+  validateListing,
   wrapAsync(async (req, res) => {
-    let result = listingSchema.validate(req.body);
-    if (result.error) {
-      throw new ExpressError(400, result.error);
-    }
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body });
     res.redirect("/listings");
@@ -101,6 +117,34 @@ app.delete(
     let { id } = req.params;
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
+  })
+);
+
+// Post Review Route
+app.post(
+  "/listings/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    let listing = await Listing.findById(req.params.id);
+    let review = new Review(req.body.review);
+
+    listing.reviews.push(review);
+    await review.save();
+    await listing.save();
+
+    res.redirect(`/listings/${req.params.id}`);
+  })
+);
+
+// Delete Review Route
+app.delete(
+  "/listings/:id/reviews/:reviewId",
+  wrapAsync(async (req, res) => {
+    let { id, reviewId } = req.params;
+    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findById(reviewId);
+
+    res.redirect(`/listings/${id}`);
   })
 );
 
