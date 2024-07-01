@@ -2,7 +2,12 @@
 <div class="row">
   <div class="col-8 offset-2">
     <br /><br />
-    <form method="post" action="/listings/<%= listing.id %>?__method=put">
+    <form
+      method="post"
+      action="/listings/<%= listing.id %>?__method=put"
+      novalidate
+      class="needs-validation"
+    >
       <h3>Edit your Listing</h3>
       <div class="mb-3">
         <label for="title" class="form-label">Title</label>
@@ -11,14 +16,17 @@
           name="title"
           value="<%= listing.title %>"
           class="form-control"
+          required
         />
+        <div class="invalid-feedback">Enter some title</div>
       </div>
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <textarea name="description" class="form-control">
+        <textarea name="description" class="form-control" required>
 <%= listing.description %>
     </textarea
         >
+        <div class="invalid-feedback">Please enter a short description</div>
       </div>
       <div class="mb-3">
         <label for="image" class="form-label">Image Link</label>
@@ -38,7 +46,9 @@
             name="price"
             value="<%= listing.price %>"
             class="form-control"
+            required
           />
+          <div class="invalid-feedback">Please enter some price!</div>
         </div>
         <div class="mb-3 col-md-8">
           <label for="country" class="form-label">Country</label>
@@ -47,7 +57,9 @@
             name="country"
             value="<%= listing.country %>"
             class="form-control"
+            required
           />
+          <div class="invalid-feedback">Please enter valid country!</div>
         </div>
       </div>
       <div class="mb-3">
@@ -57,7 +69,9 @@
           name="location"
           value="<%= listing.location %>"
           class="form-control"
+          required
         />
+        <div class="invalid-feedback">Please enter valid location!</div>
       </div>
       <br />
       <button class="btn btn-dark add-btn">Confirm</button>
