@@ -10,8 +10,8 @@ const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const ExpressError = require("./utils/ExpressError.js");
 const listingRouter = require("./routes/listings.js");
-const reviewRouter = require("./routes/review.js");
-const userRouter = require("./routes/user.js");
+const reviewRouter = require("./routes/reviews.js");
+const userRouter = require("./routes/users.js");
 
 const app = express();
 const port = 8080;
