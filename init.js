@@ -13,7 +13,7 @@ connect()
 async function initdb() {
   await Listing.deleteMany({});
   await Listing.insertMany(
-    data.map((obj) => ({ ...obj, owner: "668f8149d958c82b8a8ee62c" }))
+    data.map((obj) => ({ ...obj, owner: "66a1006d69c23ca6201565e7" }))
   );
   console.log("db was initialised");
 }
