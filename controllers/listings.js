@@ -45,12 +45,22 @@ module.exports.editListing = async (req, res) => {
     res.redirect("/listings");
     return;
   }
-  res.render("./listings/edit.ejs", { listing });
+
+  let originalUrl = listing.image.url;
+  originalUrl.replace("/upload", "/upload/w_250");
+  res.render("./listings/edit.ejs", { listing, originalUrl });
 };
 
 module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, { ...req.body });
+  let ls = await Listing.findByIdAndUpdate(id, { ...req.body });
+
+  if (req.file) {
+    let url = req.file.path;
+    let filename = req.file.filename;
+    ls.image = { filename, url };
+    await ls.save();
+  }
   req.flash("success", "Listing Updated!");
   res.redirect(`/listings/${id}`);
 };

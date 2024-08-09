@@ -6,6 +6,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -17,8 +18,25 @@ const userRouter = require("./routes/users.js");
 
 const app = express();
 const port = 8080;
+
+// const mongoUrl = "mongodb://localhost:27017/wanderlust";
+const dbUrl = process.env.ATLAS_URL;
+
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 60 * 60,
+});
+
+store.on("error", () => {
+  console.log("ERROR IN MONGO SESSION STORE", err);
+});
+
 const sessionConfig = {
-  secret: "mysecret",
+  store,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -60,17 +78,17 @@ app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 
 async function connect() {
-  mongoose.connect("mongodb://localhost:27017/wanderlust");
+  mongoose.connect(dbUrl);
 }
 
 connect()
   .then((res) => console.log("connection successful"))
   .catch((err) => console.log(err));
 
-// Root
-app.get("/", (req, res) => {
-  res.send("Root");
-});
+// // Root
+// app.get("/", (req, res) => {
+//   res.send("Root");
+// });
 
 app.all("*", (req, res) => {
   throw new ExpressError(404, "Page Not Found!");
